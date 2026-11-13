@@ -8,6 +8,9 @@ import json
 import math
 import re
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from ledger_checks import require_ready_ledger
 import zipfile
 from collections import defaultdict
 from lxml import etree as E
@@ -35,6 +38,7 @@ CATEGORY_ORDER = [
 ]
 
 def load_ledger(path):
+    require_ready_ledger(path)
     wb=openpyxl.load_workbook(path,data_only=True)
     s=wb['원장'];headers={s.cell(3,c).value:c for c in range(1,s.max_column+1)}
     required=['목','세목','사업단위','비용구분','세부항목','본예산','최종편성예산']+STAGES

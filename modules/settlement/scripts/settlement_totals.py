@@ -1,11 +1,15 @@
 """원장과 기준일별 정산 입력을 대조한다. HWPX 출력기는 아니다."""
 import argparse,json
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
+from ledger_checks import require_ready_ledger
 from collections import defaultdict
 from datetime import date
 import openpyxl
 
 def calculate(ledger,inputs):
+    require_ready_ledger(ledger)
     cutoff=date.fromisoformat(inputs['as_of'])
     sheet=openpyxl.load_workbook(ledger,data_only=True)['원장']
     headers={sheet.cell(3,c).value:c for c in range(1,sheet.max_column+1)}
