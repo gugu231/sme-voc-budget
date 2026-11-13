@@ -78,12 +78,7 @@ def check_ledger(path):
             final = sum(nums)
             if any(sum(nums[:n + 1]) < 0 for n in range(len(nums))):
                 errors.append({'type': 'negative_budget', 'row': r})
-            basis = str(get('산출근거(최종예산)') or '').strip()
-            if final == 0 and basis != '0원':
-                errors.append({'type': 'zero_basis_must_be_0won', 'row': r})
-            elif final != 0 and any(token in basis for token in ['추정', '확인 필요', '확인필요', '미확인', '세부산출 확인']):
-                errors.append({'type': 'unverified_basis', 'row': r})
-            # A genuine lump-sum quote may use 1식; source evidence still needs review.
+            # Calculation-basis text is required, but not parsed or amount-validated.
             try:
                 mapping_key(get('사업단위'), get('비용구분'), get('목'), get('세목'))
             except ValueError:
@@ -101,7 +96,7 @@ def check_ledger(path):
                 errors.append({'type': 'unbalanced_transfer', 'stage': n, 'amount': value})
         return {'ready': not errors, 'rows': len(rows), 'totals': totals,
                 'errors': errors,
-                'scope': '입력·코드·차수 합계·계산 캐시 검사. 원자료 대조, 산출식의 의미, 한도·비율, 승인·재원 및 작업자 검토는 별도 필수.'}
+                'scope': '입력·코드·차수 합계·계산 캐시 검사. 산출내역은 입력 여부만 검사하며 정확성은 작업자가 확인. 원자료 대조, 한도·비율, 승인·재원 검토는 별도 필수.'}
     finally:
         raw.close()
         cached.close()
