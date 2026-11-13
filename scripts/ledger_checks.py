@@ -46,7 +46,7 @@ def check_ledger(path):
         values = cached['원장']
         headers = {sheet.cell(3, c).value: c for c in range(1, sheet.max_column + 1)}
         required = ['목', '세목', '사업단위', '비용구분', '세부항목',
-                    '산출근거(최종예산)', '본예산']
+                    '산출근거(최종예산)']
         amounts = ['본예산'] + [f'{n}차증감' for n in range(1, 5)]
         for name in required + amounts + ['최종편성예산']:
             if name not in headers:
@@ -61,7 +61,7 @@ def check_ledger(path):
             def get(name):
                 return sheet.cell(r, headers[name]).value
             # A used row is determined by editable inputs, never by item name alone.
-            fields = required + amounts[1:] + [k for k in ['특화형', '비고'] if k in headers]
+            fields = required + amounts + [k for k in ['특화형', '비고'] if k in headers]
             if all(get(k) in (None, '') for k in fields):
                 continue
             rows.append(r)
@@ -69,7 +69,7 @@ def check_ledger(path):
                 value = get(name)
                 if value is None or (isinstance(value, str) and not value.strip()):
                     errors.append({'type': 'missing_required', 'row': r, 'field': name})
-            nums = [get(k) if get(k) is not None else 0 for k in amounts]
+            nums = [get(k) if get(k) not in (None, "") else 0 for k in amounts]
             if not all(type(v) in (int, float) and math.isfinite(v) and v == int(v) for v in nums):
                 errors.append({'type': 'invalid_amount', 'row': r})
                 continue
